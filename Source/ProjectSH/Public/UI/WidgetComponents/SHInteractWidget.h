@@ -42,6 +42,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSh")
 	TObjectPtr<UImage> KeyCodeImage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH", meta = (GetOptions = "EnhancedInput.PlayerMappableKeySettings.GetKnownMappingNames"))
+	FName MappingName;
+
 	UFUNCTION()
 	void MappingsRebuilt();
 

@@ -16,15 +16,22 @@ class PROJECTSH_API USHInputActionDescriptionWidget : public UUserWidget
 
 
 public:
-	void SetKeyTexture(TSoftObjectPtr<UTexture2D> InTexture);
 	void SetKeyDescription(FText InText);
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH", meta = (GetOptions = "EnhancedInput.PlayerMappableKeySettings.GetKnownMappingNames"))
+	FName MappingName;
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UImage> KeyImage;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UTextBlock> TextDescription;
 
+	UFUNCTION()
+	virtual void MappingsRebuilt();
+
 	virtual void NativeOnInitialized() override;
+
+	void SetTexture(UImage* InKeyImage, FName InMappingName);
 };

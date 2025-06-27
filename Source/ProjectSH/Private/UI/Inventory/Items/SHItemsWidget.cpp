@@ -409,7 +409,15 @@ void USHItemsWidget::NativeOnInitialized()
 	DropDownMenu->GetUseButtonSignature().AddDynamic(this, &USHItemsWidget::UseItem);
 	DropDownMenu->GetDropButtonSignature().AddDynamic(this, &USHItemsWidget::DropItem);
 
-	CharacterInventory->OnInventoryInitialized.AddUObject(this, &USHItemsWidget::InventoryInitialized);
+	if (CharacterInventory->IsInitialized())
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &USHItemsWidget::InventoryInitialized);
+	}
+	else
+	{
+		CharacterInventory->OnInventoryInitialized.AddUObject(this, &USHItemsWidget::InventoryInitialized);
+	}
+
 	CharacterInventory->OnItemCreated.AddUObject(this, &USHItemsWidget::ItemCreated);
 	CharacterInventory->OnSlotsIncremented.AddUObject(this, &USHItemsWidget::SlotsIncremented);
 }
@@ -497,7 +505,7 @@ void USHItemsWidget::OpenDropDownMenu()
 			InventoryWidget->SetApplyDescription(ApplyDescription);
 			InventoryWidget->SetCancelDescription(CancelDescription);
 
-			InventoryWidget->SeterticalAndHorizontalDescription(VerticalDescription, FText());
+			InventoryWidget->SetVerticalAndHorizontalDescription(VerticalDescription, FText());
 		}
 	}
 }

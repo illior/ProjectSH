@@ -81,23 +81,7 @@ void USHInteractWidget::MappingsRebuilt()
 		return;
 	}
 
-	ASHCharacter* Character = GetOwningPlayerPawn<ASHCharacter>();
-	if (!IsValid(Character))
-	{
-		return;
-	}
-
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetOwningLocalPlayer());
-	if (!IsValid(Subsystem))
-	{
-		return;
-	}
-
-	TArray<FKey> Keys = Subsystem->QueryKeysMappedToAction(Character->GetInteractAction());
-	if (Keys.IsValidIndex(0))
-	{
-		KeyCodeImage->SetBrushFromSoftTexture(HUD->GetTextureForKey(Keys[0]));
-	}
+	KeyCodeImage->SetBrushFromSoftTexture(HUD->GetTextureForMappingName(MappingName));
 }
 
 void USHInteractWidget::NativeOnInitialized()

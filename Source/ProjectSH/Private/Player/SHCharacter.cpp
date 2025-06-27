@@ -3,7 +3,7 @@
 #include "Player/SHCharacter.h"
 
 #include "Player/SHPlayerController.h"
-#include "UI/SHHUD.h"
+#include "UI/SHGameHUD.h"
 #include "UI/Inventory/SHInventoryWidget.h"
 #include "UI/Inventory/Items/SHItemsWidget.h"
 
@@ -83,7 +83,7 @@ void ASHCharacter::AddItem(USHItemData* InItemData)
 		return;
 	}
 
-	ASHHUD* HUD = PlayerController->GetHUD<ASHHUD>();
+	ASHGameHUD* HUD = PlayerController->GetHUD<ASHGameHUD>();
 	if (HUD == nullptr)
 	{
 		return;

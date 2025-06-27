@@ -93,8 +93,6 @@ USHRecordsWidget* USHInventoryWidget::GetRecordsWidget() const
 
 void USHInventoryWidget::OpenMap()
 {
-	SetVisibility(ESlateVisibility::Visible);
-
 	USHMapWidget* MapWidget = GetMapWidget();
 	if (IsValid(MapWidget))
 	{
@@ -112,8 +110,6 @@ void USHInventoryWidget::OpenMap()
 
 void USHInventoryWidget::OpenItems()
 {
-	SetVisibility(ESlateVisibility::Visible);
-
 	USHItemsWidget* ItemsWidget = GetItemsWidget();
 	if (IsValid(ItemsWidget))
 	{
@@ -131,8 +127,6 @@ void USHInventoryWidget::OpenItems()
 
 void USHInventoryWidget::OpenRecords()
 {
-	SetVisibility(ESlateVisibility::Visible);
-
 	USHRecordsWidget* RecordsWidget = GetRecordsWidget();
 	if (IsValid(RecordsWidget))
 	{
@@ -164,28 +158,6 @@ void USHInventoryWidget::ShowItems()
 	}
 }
 
-void USHInventoryWidget::SetCancelDescription(FText InText)
-{
-	CancelDescription->SetKeyDescription(InText);
-}
-
-void USHInventoryWidget::SetApplyDescription(FText InText)
-{
-	ApplyDescription->SetKeyDescription(InText);
-}
-
-void USHInventoryWidget::SetMoveDescription(FText InText)
-{
-	MoveVerticalDescription->SetKeyDescription(InText);
-	MoveHorizontalDescription->SetKeyDescription(FText());
-}
-
-void USHInventoryWidget::SeterticalAndHorizontalDescription(FText VerticalDesctiption, FText HorizontalDesctiption)
-{
-	MoveVerticalDescription->SetKeyDescription(VerticalDesctiption, true);
-	MoveHorizontalDescription->SetKeyDescription(HorizontalDesctiption, false);
-}
-
 void USHInventoryWidget::Close()
 {
 	if (InteractTarget.IsValid())
@@ -203,70 +175,14 @@ void USHInventoryWidget::Close()
 	Super::Close();
 }
 
-void USHInventoryWidget::MappingsRebuilt()
-{
-	ASHHUD* HUD = IsValid(GetOwningPlayer()) ? GetOwningPlayer()->GetHUD<ASHHUD>() : nullptr;
-	if (!IsValid(HUD))
-	{
-		return;
-	}
-
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetOwningLocalPlayer());
-	if (!IsValid(Subsystem))
-	{
-		return;
-	}
-
-	TArray<FKey> AdditiveMoveKeys = Subsystem->QueryKeysMappedToAction(AdditiveMoveAction);
-	if (AdditiveMoveKeys.IsValidIndex(2))
-	{
-		LeftSwitch->SetBrushFromSoftTexture(HUD->GetTextureForKey(AdditiveMoveKeys[2]));
-	}
-
-	if (AdditiveMoveKeys.IsValidIndex(3))
-	{
-		RightSwitch->SetBrushFromSoftTexture(HUD->GetTextureForKey(AdditiveMoveKeys[3]));
-	}
-
-	TArray<FKey> ApplyKeys = Subsystem->QueryKeysMappedToAction(ApplyAction);
-	if (ApplyKeys.IsValidIndex(0))
-	{
-		ApplyDescription->SetKeyTexture(HUD->GetTextureForKey(ApplyKeys[0]));
-	}
-
-	TArray<FKey> CancelKeys = Subsystem->QueryKeysMappedToAction(CancelAction);
-	if (ApplyKeys.IsValidIndex(0))
-	{
-		CancelDescription->SetKeyTexture(HUD->GetTextureForKey(CancelKeys[0]));
-	}
-
-	TArray<FKey> MoveKeys = Subsystem->QueryKeysMappedToAction(MoveAction);
-	for (int32 i = 0; i < MoveKeys.Num(); i++)
-	{
-		MoveVerticalDescription->SetKeyTexture(HUD->GetTextureForKey(MoveKeys[i]), i);
-		MoveHorizontalDescription->SetKeyTexture(HUD->GetTextureForKey(MoveKeys[i]), i);
-	}
-}
-
 void USHInventoryWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetOwningLocalPlayer());
-	if (!IsValid(Subsystem))
-	{
-		return;
-	}
-
-	Subsystem->ControlMappingsRebuiltDelegate.AddDynamic(this, &USHInventoryWidget::MappingsRebuilt);
 
 	check(Background);
 	check(Titles);
 	check(TitlesPanel);
 	check(TabSwitcher);
-
-	check(LeftSwitch);
-	check(RightSwitch);
 
 	check(ApplyDescription);
 	check(CancelDescription);

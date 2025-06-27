@@ -55,6 +55,7 @@ public:
 	FIntPoint GetMaxSize() const { return MaxSize; };
 	int32 GetCurrentSlotsCount() const { return CurrentSlotsCount; };
 	ESHSlotState GetSlotState(FIntPoint InPosition) const;
+	bool IsInitialized() const { return bInitialized; };
 
 	TIndexedContainerIterator<const TArray<TObjectPtr<USHItemData>, FDefaultAllocator>, TObjectPtr<USHItemData> const, int32> GetItemsIterator() const;
 	TIndexedContainerIterator<const TArray<FSHRecord, FDefaultAllocator>, FSHRecord const, int32> GetRecordsIterator() const;
@@ -108,6 +109,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+	bool bInitialized = false;
 	ESHSlotState** SlotsMatrix;
 
 	void CreateMatrix();

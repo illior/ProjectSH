@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InteractionSystem/SHInteractableTargetActor.h"
-#include "UI/SHHUD.h"
+#include "UI/SHGameHUD.h"
 #include "UI/Inventory/SHInventoryWidget.h"
 #include "UI/Inventory/Items/SHItemsWidget.h"
 #include "Player/SHPlayerController.h"
@@ -108,20 +108,8 @@ void ASHInteractableTargetActor::ShowItems_Implementation()
 		return;
 	}
 
-	ASHPlayerController* PlayerController = Character->GetController<ASHPlayerController>();
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	ASHHUD* HUD = PlayerController->GetHUD<ASHHUD>();
-	if (HUD == nullptr)
-	{
-		return;
-	}
-
-	USHInventoryWidget* InventoryWidget = HUD->GetInventoryWidget();
-	if (InventoryWidget == nullptr)
+	USHInventoryWidget* InventoryWidget = GetInventoryWidget();
+	if (!IsValid(InventoryWidget))
 	{
 		return;
 	}
@@ -136,20 +124,8 @@ void ASHInteractableTargetActor::HideItems_Implementation()
 		return;
 	}
 
-	ASHPlayerController* PlayerController = Character->GetController<ASHPlayerController>();
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	ASHHUD* HUD = PlayerController->GetHUD<ASHHUD>();
-	if (HUD == nullptr)
-	{
-		return;
-	}
-
-	USHInventoryWidget* InventoryWidget = HUD->GetInventoryWidget();
-	if (InventoryWidget == nullptr)
+	USHInventoryWidget* InventoryWidget = GetInventoryWidget();
+	if (!IsValid(InventoryWidget))
 	{
 		return;
 	}
@@ -225,11 +201,12 @@ USHInventoryWidget* ASHInteractableTargetActor::GetInventoryWidget() const
 		return nullptr;
 	}
 
-	ASHHUD* HUD = PlayerController->GetHUD<ASHHUD>();
+	ASHGameHUD* HUD = PlayerController->GetHUD<ASHGameHUD>();
 	if (HUD == nullptr)
 	{
 		return nullptr;
 	}
+
 
 	return HUD->GetInventoryWidget();
 }

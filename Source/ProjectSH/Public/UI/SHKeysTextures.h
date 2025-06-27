@@ -6,7 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "SHKeysTextures.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType)
 class PROJECTSH_API USHKeysTextures : public UDataAsset
 {
 	GENERATED_BODY()

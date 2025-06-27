@@ -6,18 +6,8 @@
 #include "GameFramework/HUD.h"
 #include "SHHUD.generated.h"
 
-class UInputAction;
 class USHKeysTextures;
 class USHBaseInputWidget;
-class USHInventoryWidget;
-
-UENUM()
-enum class FSHInventoryPages : uint8
-{
-	Map,
-	Items,
-	Records
-};
 
 UCLASS()
 class PROJECTSH_API ASHHUD : public AHUD
@@ -26,30 +16,22 @@ class PROJECTSH_API ASHHUD : public AHUD
 
 
 public:
-	void OpenInventoryWidget(FSHInventoryPages Page = FSHInventoryPages::Items);
-	void OpenPauseWidget();
+	UFUNCTION(BlueprintCallable, Category = "ProjectSH")
+	TSoftObjectPtr<UTexture2D> GetTextureForKey(FKey InKey) const;
 
-	void CloseWidgets();
+	UFUNCTION(BlueprintCallable, Category = "ProjectSH")
+	TSoftObjectPtr<UTexture2D> GetTextureForMappingName(FName InMappingName) const;
 
-	USHBaseInputWidget* GetPauseWidget() const { return PauseWidget; };
-	USHInventoryWidget* GetInventoryWidget() const { return InventoryWidget; };
+	UFUNCTION(BlueprintCallable, Category = "ProjectSH|Widgets")
+	void SetInputWidget(USHBaseInputWidget* InWidget);
 
-	TSoftObjectPtr<UTexture2D> GetTextureForKey(FKey InKey);
-
+	USHBaseInputWidget* GetCurrentInputWidget() const;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectSH")
 	TObjectPtr<USHKeysTextures> KeysTextures;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectSH: Widgets")
-	TSubclassOf<USHBaseInputWidget> PauseWidgetClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectSH: Widgets")
-	TSubclassOf<USHInventoryWidget> InventoryWidgetClass;
-
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectSH|Widgets")
-	TObjectPtr<USHBaseInputWidget> PauseWidget;
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectSH|Widgets")
-	TObjectPtr<USHInventoryWidget> InventoryWidget;
+	TObjectPtr<USHBaseInputWidget> CurrentInputWidget;
 
 	virtual void BeginPlay() override;
 };

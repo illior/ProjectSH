@@ -63,13 +63,13 @@ void USHItemsContainerWidget::CreateItems()
 		return;
 	}
 
+	GridPanel->ClearChildren();
+
 	USHInventoryComponent* CharacterInventory = PlayerPawn->FindComponentByClass<USHInventoryComponent>();
 	if (CharacterInventory == nullptr)
 	{
 		return;
 	}
-
-	GridPanel->ClearChildren();
 
 	for (TIndexedContainerIterator It = CharacterInventory->GetItemsIterator(); It; ++It)
 	{

@@ -5,27 +5,6 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-void USHInputAxisDescriptionWidget::SetKeyTexture(TSoftObjectPtr<UTexture2D> InTexture, int32 Index)
-{
-	switch (Index)
-	{
-	case 0:
-		KeyTopImage->SetBrushFromSoftTexture(InTexture);
-		break;
-	case 1:
-		KeyBottomImage->SetBrushFromSoftTexture(InTexture);
-		break;
-	case 2:
-		KeyRightImage->SetBrushFromSoftTexture(InTexture);
-		break;
-	case 3:
-		KeyImage->SetBrushFromSoftTexture(InTexture);
-		break;
-	default:
-		break;
-	}
-}
-
 void USHInputAxisDescriptionWidget::SetKeyDescription(FText InText)
 {
 	if (InText.IsEmpty())
@@ -65,6 +44,15 @@ void USHInputAxisDescriptionWidget::SetKeyDescription(FText InText, bool bAxis)
 		KeyImage->SetVisibility(ESlateVisibility::Visible);
 		KeyRightImage->SetVisibility(ESlateVisibility::Visible);
 	}
+}
+
+void USHInputAxisDescriptionWidget::MappingsRebuilt()
+{
+	Super::MappingsRebuilt();
+
+	SetTexture(KeyTopImage, TopMappingName);
+	SetTexture(KeyRightImage, RightMappingName);
+	SetTexture(KeyBottomImage, BottomMappingName);
 }
 
 void USHInputAxisDescriptionWidget::NativeOnInitialized()

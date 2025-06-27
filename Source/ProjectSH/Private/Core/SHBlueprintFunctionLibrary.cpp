@@ -31,3 +31,11 @@ void USHBlueprintFunctionLibrary::UnserializeActor(AActor* InActor, FSHActorSave
 
 	InActor->Serialize(Ar);
 }
+
+void USHBlueprintFunctionLibrary::SetObjectOuter(UObject* Object, UObject* NewOuter)
+{
+	if (IsValid(Object) && IsValid(NewOuter))
+	{
+		Object->Rename(nullptr, NewOuter);
+	}
+}

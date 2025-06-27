@@ -2,6 +2,8 @@
 
 #include "UI/SHBaseMenuButtonWidget.h"
 
+#include "UI/SHBaseMenuWidget.h"
+#include "UI/SHSlideButton.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
@@ -67,16 +69,42 @@ void USHBaseMenuButtonWidget::NativeOnInitialized()
 
 FReply USHBaseMenuButtonWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && CurrentState != ESHButtonState::Disabled)
+	{
+		SetState(ESHButtonState::Pressed);
+		return FReply::Handled();
+	}
+
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 FReply USHBaseMenuButtonWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	if (GetState() == ESHButtonState::Pressed && InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		USHBaseMenuWidget* MenuWidget = Cast<USHBaseMenuWidget>(GetOuter());
+		if (IsValid(MenuWidget))
+		{
+			MenuWidget->SetButtonSelected(this);
+		}
+
+		OnClicked.Broadcast();
+
+		return FReply::Unhandled();
+	}
+
 	return Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
 }
 
 void USHBaseMenuButtonWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	USHBaseMenuWidget* MenuWidget = Cast<USHBaseMenuWidget>(GetOuter());
+	if (IsValid(MenuWidget) && CurrentState == ESHButtonState::Normal)
+	{
+		MenuWidget->SetButtonSelected(this);
+		return;
+	}
+
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 }
 

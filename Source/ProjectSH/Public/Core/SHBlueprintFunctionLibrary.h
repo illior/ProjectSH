@@ -18,4 +18,7 @@ class PROJECTSH_API USHBlueprintFunctionLibrary : public UBlueprintFunctionLibra
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectSH")
 	static void UnserializeActor(AActor* InActor, FSHActorSaveData InSaveData);
+
+	UFUNCTION(BlueprintCallable, Category = "ProjectSH")
+	static void SetObjectOuter(UObject* Object, UObject* NewOuter);
 };

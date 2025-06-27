@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
+#include "UI/SHInputAxisDescriptionWidget.h"
+
 DEFINE_LOG_CATEGORY(LogBaseInputWidget);
 
 void USHBaseInputWidget::SetVisibility(ESlateVisibility InVisibility)
@@ -20,6 +22,50 @@ void USHBaseInputWidget::SetVisibility(ESlateVisibility InVisibility)
 	{
 		UnregisterInputComponent();
 	}
+}
+
+void USHBaseInputWidget::SetCancelDescription(FText InText)
+{
+	CancelDescription->SetKeyDescription(InText);
+}
+
+void USHBaseInputWidget::SetApplyDescription(FText InText)
+{
+	ApplyDescription->SetKeyDescription(InText);
+}
+
+void USHBaseInputWidget::SetResetBindDescription(FText InText)
+{
+	ResetBindDescription->SetKeyDescription(InText);
+}
+
+void USHBaseInputWidget::SetDeleteBindDescription(FText InText)
+{
+	DeleteBindDescription->SetKeyDescription(InText);
+}
+
+void USHBaseInputWidget::SetMoveDescription(FText InText)
+{
+	MoveVerticalDescription->SetKeyDescription(InText);
+	MoveHorizontalDescription->SetKeyDescription(FText());
+}
+
+void USHBaseInputWidget::SetVerticalAndHorizontalDescription(FText VerticalDesctiption, FText HorizontalDesctiption)
+{
+	MoveVerticalDescription->SetKeyDescription(VerticalDesctiption, true);
+	MoveHorizontalDescription->SetKeyDescription(HorizontalDesctiption, false);
+}
+
+void USHBaseInputWidget::SetAdditiveMoveDescription(FText InText)
+{
+	AdditiveMoveVerticalDescription->SetKeyDescription(InText);
+	AdditiveMoveHorizontalDescription->SetKeyDescription(FText());
+}
+
+void USHBaseInputWidget::SetAdditiveVerticalAndHorizontalDescription(FText VerticalDesctiption, FText HorizontalDesctiption)
+{
+	AdditiveMoveVerticalDescription->SetKeyDescription(VerticalDesctiption, true);
+	AdditiveMoveHorizontalDescription->SetKeyDescription(HorizontalDesctiption, false);
 }
 
 void USHBaseInputWidget::Close()
@@ -49,6 +95,9 @@ void USHBaseInputWidget::SetupInput(UEnhancedInputComponent* EnhancedInputCompon
 
 	EnhancedInputComponent->BindAction(ApplyAction, ETriggerEvent::Completed, this, &USHBaseInputWidget::InputApply);
 	EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Completed, this, &USHBaseInputWidget::InputCancel);
+
+	EnhancedInputComponent->BindAction(ResetBindAction, ETriggerEvent::Completed, this, &USHBaseInputWidget::InputResetBind);
+	EnhancedInputComponent->BindAction(DeleteBindAction, ETriggerEvent::Completed, this, &USHBaseInputWidget::InputDeleteBind);
 }
 
 void USHBaseInputWidget::Move(FVector2D Value, float ElapsedTime)
@@ -71,6 +120,16 @@ void USHBaseInputWidget::Cancel()
 	UE_LOG(LogBaseInputWidget, Display, TEXT("Cancel"));
 
 	Close();
+}
+
+void USHBaseInputWidget::ResetBind()
+{
+
+}
+
+void USHBaseInputWidget::DeleteBind()
+{
+
 }
 
 void USHBaseInputWidget::InputStartMove(const FInputActionInstance& Instance)
@@ -101,4 +160,14 @@ void USHBaseInputWidget::InputApply(const FInputActionInstance& Instance)
 void USHBaseInputWidget::InputCancel(const FInputActionInstance& Instance)
 {
 	Cancel();
+}
+
+void USHBaseInputWidget::InputResetBind(const FInputActionInstance& Instance)
+{
+	ResetBind();
+}
+
+void USHBaseInputWidget::InputDeleteBind(const FInputActionInstance& Instance)
+{
+	DeleteBind();
 }

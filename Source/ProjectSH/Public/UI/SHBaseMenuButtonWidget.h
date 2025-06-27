@@ -25,15 +25,17 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectSH", meta = (DisplayName = "StateChanged"))
 	void ReceiveStateChanged();
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectSH")
 	virtual void Click();
 
+	UFUNCTION(BlueprintCallable, Category = "ProjectSH")
 	virtual void SetState(ESHButtonState NewState);
 	ESHButtonState GetState() const;
 
 protected:
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "ProjectSH")
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UImage> ButtonImage;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "ProjectSH")
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UTextBlock> ButtonText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Style")

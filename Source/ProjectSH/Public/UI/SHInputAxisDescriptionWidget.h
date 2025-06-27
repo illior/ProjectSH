@@ -15,7 +15,6 @@ class PROJECTSH_API USHInputAxisDescriptionWidget : public USHInputActionDescrip
 
 
 public:
-	void SetKeyTexture(TSoftObjectPtr<UTexture2D> InTexture, int32 Index);
 	void SetKeyDescription(FText InText);
 
 	/**
@@ -24,6 +23,15 @@ public:
 	void SetKeyDescription(FText InText, bool bAxis);
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH", meta = (GetOptions = "EnhancedInput.PlayerMappableKeySettings.GetKnownMappingNames"))
+	FName TopMappingName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH", meta = (GetOptions = "EnhancedInput.PlayerMappableKeySettings.GetKnownMappingNames"))
+	FName RightMappingName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH", meta = (GetOptions = "EnhancedInput.PlayerMappableKeySettings.GetKnownMappingNames"))
+	FName BottomMappingName;
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UImage> KeyTopImage;
 
@@ -35,6 +43,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UPanelWidget> VerticalPanel;
+
+	virtual void MappingsRebuilt() override;
 
 	virtual void NativeOnInitialized() override;
 };

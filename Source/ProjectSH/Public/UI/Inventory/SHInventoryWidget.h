@@ -10,8 +10,6 @@ class ASHInteractableTargetActor;
 class USHMapWidget;
 class USHItemsWidget;
 class USHRecordsWidget;
-class USHInputActionDescriptionWidget;
-class USHInputAxisDescriptionWidget;
 class UPanelWidget;
 class UWidgetSwitcher;
 class UImage;
@@ -36,15 +34,6 @@ public:
 	void HideItems();
 	void ShowItems();
 
-	UFUNCTION(BlueprintCallable, Category = "ProjectSH|UI")
-	void SetCancelDescription(FText InText);
-	UFUNCTION(BlueprintCallable, Category = "ProjectSH|UI")
-	void SetApplyDescription(FText InText);
-	UFUNCTION(BlueprintCallable, Category = "ProjectSH|UI")
-	void SetMoveDescription(FText InText);
-	UFUNCTION(BlueprintCallable, Category = "ProjectSH|UI")
-	void SeterticalAndHorizontalDescription(FText VerticalDesctiption, FText HorizontalDesctiption);
-
 	virtual void Close() override;
 
 protected:
@@ -60,23 +49,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UPanelWidget> TitlesPanel;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
-	TObjectPtr<UImage> LeftSwitch;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
-	TObjectPtr<UImage> RightSwitch;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
-	TObjectPtr<USHInputActionDescriptionWidget> ApplyDescription;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
-	TObjectPtr<USHInputActionDescriptionWidget> CancelDescription;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
-	TObjectPtr<USHInputAxisDescriptionWidget> MoveVerticalDescription;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
-	TObjectPtr<USHInputAxisDescriptionWidget> MoveHorizontalDescription;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ProjectSH: Input", meta = (ClampMin = "0.01", ClampMax = "1.0"))
 	float MinFrequency = 0.1f;
 
@@ -86,9 +58,6 @@ protected:
 	TWeakObjectPtr<ASHInteractableTargetActor> InteractTarget;
 
 	int32 SwitchIndex;
-
-	UFUNCTION()
-	void MappingsRebuilt();
 
 	virtual void NativeOnInitialized() override;
 

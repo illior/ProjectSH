@@ -1,61 +1,88 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI/SHHUD.h"
+#include "UI/SHBaseInputWidget.h"
 #include "UI/SHKeysTextures.h"
-#include "UI/Inventory/SHInventoryWidget.h"
+
 #include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 
-void ASHHUD::OpenInventoryWidget(FSHInventoryPages Page)
+TSoftObjectPtr<UTexture2D> ASHHUD::GetTextureForKey(FKey InKey) const
 {
-	switch (Page)
+	if (!IsValid(KeysTextures))
 	{
-	case FSHInventoryPages::Map:
-		InventoryWidget->OpenMap();
-		break;
-	case FSHInventoryPages::Items:
-		InventoryWidget->OpenItems();
-		break;
-	case FSHInventoryPages::Records:
-		InventoryWidget->OpenRecords();
-		break;
-	default:
-		InventoryWidget->OpenItems();
-		break;
-	}
-}
-
-void ASHHUD::OpenPauseWidget()
-{
-	PauseWidget->SetVisibility(ESlateVisibility::Visible);
-}
-
-void ASHHUD::CloseWidgets()
-{
-	if (InventoryWidget->GetVisibility() == ESlateVisibility::Visible)
-	{
-		InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+		return TSoftObjectPtr<UTexture2D>();
 	}
 
-	if (PauseWidget->GetVisibility() == ESlateVisibility::Visible)
+	TSoftObjectPtr<UTexture2D>* TexturePointer = KeysTextures->KeyToTextureMap.Find(InKey);
+	if (TexturePointer != nullptr)
 	{
-		PauseWidget->SetVisibility(ESlateVisibility::Collapsed);
+		return *TexturePointer;
 	}
+
+	return TSoftObjectPtr<UTexture2D>();
 }
 
-TSoftObjectPtr<UTexture2D> ASHHUD::GetTextureForKey(FKey InKey)
+TSoftObjectPtr<UTexture2D> ASHHUD::GetTextureForMappingName(FName InMappingName) const
 {
-	return IsValid(KeysTextures) ? *KeysTextures->KeyToTextureMap.Find(InKey) : TSoftObjectPtr<UTexture2D>();
+	if (!IsValid(PlayerOwner))
+	{
+		return TSoftObjectPtr<UTexture2D>();
+	}
+
+	const UEnhancedInputLocalPlayerSubsystem* EISubsystem = PlayerOwner->GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (!IsValid(EISubsystem))
+	{
+		return TSoftObjectPtr<UTexture2D>();
+	}
+
+	const UEnhancedInputUserSettings* UserSettings = EISubsystem->GetUserSettings();
+	if (!IsValid(UserSettings))
+	{
+		return TSoftObjectPtr<UTexture2D>();
+	}
+
+	UEnhancedPlayerMappableKeyProfile* KeyProfile = UserSettings->GetCurrentKeyProfile();
+	if (!IsValid(KeyProfile))
+	{
+		return TSoftObjectPtr<UTexture2D>();
+	}
+
+	FMapPlayerKeyArgs Args = {};
+	Args.MappingName = InMappingName;
+	Args.Slot = EPlayerMappableKeySlot::First;
+
+	FPlayerKeyMapping* KeyMapping = KeyProfile->FindKeyMapping(Args);
+	if (KeyMapping != nullptr)
+	{
+		return GetTextureForKey(KeyMapping->GetCurrentKey());
+	}
+
+	return TSoftObjectPtr<UTexture2D>();
+}
+
+void ASHHUD::SetInputWidget(USHBaseInputWidget* InWidget)
+{
+	if (IsValid(CurrentInputWidget))
+	{
+		CurrentInputWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (IsValid(InWidget))
+	{
+		InWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	CurrentInputWidget = InWidget;
+}
+
+USHBaseInputWidget* ASHHUD::GetCurrentInputWidget() const
+{
+	return CurrentInputWidget;
 }
 
 void ASHHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PauseWidget = CreateWidget<USHBaseInputWidget>(PlayerOwner, PauseWidgetClass, FName(TEXT("PauseWidget")));
-	PauseWidget->AddToViewport();
-	PauseWidget->SetVisibility(ESlateVisibility::Collapsed);
-
-	InventoryWidget = CreateWidget<USHInventoryWidget>(PlayerOwner, InventoryWidgetClass, FName(TEXT("InventoryWidget")));
-	InventoryWidget->AddToViewport();
-	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 }

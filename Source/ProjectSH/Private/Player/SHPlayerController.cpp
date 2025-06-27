@@ -3,7 +3,7 @@
 #include "Player/SHPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "InteractionSystem/SHInteractableTargetActor.h"
-#include "UI/SHHUD.h"
+#include "UI/SHGameHUD.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -28,12 +28,15 @@ void ASHPlayerController::ResumeGame()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem != nullptr)
 	{
+		FModifyContextOptions ModifyContextOptions;
+		ModifyContextOptions.bNotifyUserSettings = true;
+
 		Subsystem->ClearAllMappings();
-		Subsystem->AddMappingContext(CharacterMappingContext, 0);
-		Subsystem->AddMappingContext(OpenUIMappingContext, 1);
+		Subsystem->AddMappingContext(CharacterMappingContext, 0, ModifyContextOptions);
+		Subsystem->AddMappingContext(OpenUIMappingContext, 1, ModifyContextOptions);
 	}
 
-	ASHHUD* HUD = GetHUD<ASHHUD>();
+	ASHGameHUD* HUD = GetHUD<ASHGameHUD>();
 	if (HUD != nullptr)
 	{
 		HUD->CloseWidgets();
@@ -55,7 +58,7 @@ void ASHPlayerController::OpenPauseMenu()
 {
 	PauseGame();
 
-	ASHHUD* HUD = GetHUD<ASHHUD>();
+	ASHGameHUD* HUD = GetHUD<ASHGameHUD>();
 	if (HUD != nullptr)
 	{
 		HUD->OpenPauseWidget();
@@ -66,7 +69,7 @@ void ASHPlayerController::OpenItems()
 {
 	PauseGame();
 
-	ASHHUD* HUD = GetHUD<ASHHUD>();
+	ASHGameHUD* HUD = GetHUD<ASHGameHUD>();
 	if (HUD != nullptr)
 	{
 		HUD->OpenInventoryWidget();
@@ -77,7 +80,7 @@ void ASHPlayerController::OpenMap()
 {
 	PauseGame();
 
-	ASHHUD* HUD = GetHUD<ASHHUD>();
+	ASHGameHUD* HUD = GetHUD<ASHGameHUD>();
 	if (HUD != nullptr)
 	{
 		HUD->OpenInventoryWidget(FSHInventoryPages::Map);
@@ -88,7 +91,7 @@ void ASHPlayerController::OpenRecords()
 {
 	PauseGame();
 
-	ASHHUD* HUD = GetHUD<ASHHUD>();
+	ASHGameHUD* HUD = GetHUD<ASHGameHUD>();
 	if (HUD != nullptr)
 	{
 		HUD->OpenInventoryWidget(FSHInventoryPages::Records);
@@ -123,8 +126,11 @@ void ASHPlayerController::PauseGame()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem != nullptr)
 	{
+		FModifyContextOptions ModifyContextOptions;
+		ModifyContextOptions.bNotifyUserSettings = true;
+
 		Subsystem->ClearAllMappings();
-		Subsystem->AddMappingContext(PauseMappingContext, 0);
+		Subsystem->AddMappingContext(PauseMappingContext, 0, ModifyContextOptions);
 	}
 }
 
@@ -151,8 +157,11 @@ void ASHPlayerController::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem != nullptr)
 	{
-		Subsystem->AddMappingContext(CharacterMappingContext, 0);
-		Subsystem->AddMappingContext(OpenUIMappingContext, 1);
+		FModifyContextOptions ModifyContextOptions;
+		ModifyContextOptions.bNotifyUserSettings = true;
+
+		Subsystem->AddMappingContext(CharacterMappingContext, 0, ModifyContextOptions);
+		Subsystem->AddMappingContext(OpenUIMappingContext, 1, ModifyContextOptions);
 	}
 }
 

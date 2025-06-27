@@ -63,6 +63,13 @@ enum class ESHButtonState : uint8
 };
 
 UENUM()
+enum class ESHKeyButtonState : uint8 {
+	Calm,
+	Active,
+	Warning,
+};
+
+UENUM()
 enum class ESHItemInventoryState : uint8 {
 	Select,
 	DropDownMenu,

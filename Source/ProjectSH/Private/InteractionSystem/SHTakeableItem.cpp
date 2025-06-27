@@ -58,7 +58,7 @@ void ASHTakeableItem::Interact(ASHCharacter* InCharacter)
 
 void ASHTakeableItem::PauseStateChanged(bool bIsPaused)
 {
-	if (ItemData == nullptr || ItemData->GetCount() == 0 || ItemData->GetOuter() != this)
+	if (!IsValid(ItemData) || ItemData->GetCount() == 0 || ItemData->GetOuter() != this)
 	{
 		Destroy();
 		return;

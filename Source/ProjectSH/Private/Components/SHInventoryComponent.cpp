@@ -423,6 +423,8 @@ void USHInventoryComponent::Initialize()
 	}
 
 	OnInventoryInitialized.Broadcast();
+	bInitialized = true;
+
 	UE_LOG(LogInventoryComponent, Display, TEXT("Inventory Component Initialized"));
 }
 

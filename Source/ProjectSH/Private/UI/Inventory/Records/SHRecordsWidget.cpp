@@ -27,7 +27,7 @@ void USHRecordsWidget::Show(bool bShowAnim)
 		InventoryWidget->SetApplyDescription(ApplyDescription);
 		InventoryWidget->SetCancelDescription(CancelDescription);
 
-		InventoryWidget->SeterticalAndHorizontalDescription(VerticalDescription, HorizontalDescription);
+		InventoryWidget->SetVerticalAndHorizontalDescription(VerticalDescription, HorizontalDescription);
 	}
 }
 
@@ -144,11 +144,18 @@ void USHRecordsWidget::NativeOnInitialized()
 	check(ScrollBox);
 
 	USHInventoryComponent* CharacterInventory = GetCharacterInventory();
-	if (!IsValid(CharacterInventory))
+	if (CharacterInventory == nullptr)
 	{
 		return;
 	}
 
-	CharacterInventory->OnInventoryInitialized.AddUObject(this, &USHRecordsWidget::InventoryInitialized);
+	if (CharacterInventory->IsInitialized())
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &USHRecordsWidget::InventoryInitialized);
+	}
+	else
+	{
+		CharacterInventory->OnInventoryInitialized.AddUObject(this, &USHRecordsWidget::InventoryInitialized);
+	}
 	CharacterInventory->OnRecordAdded.AddUObject(this, &USHRecordsWidget::RecordAdded);
 }

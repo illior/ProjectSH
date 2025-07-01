@@ -31,8 +31,8 @@ ASHCharacter::ASHCharacter(const FObjectInitializer& ObjInit)
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComponent->SetupAttachment(GetRootComponent(), FName(TEXT("head")));
 	SpringArmComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 60.0f));
-	SpringArmComponent->TargetArmLength = 0.0f;
-	SpringArmComponent->SocketOffset = FVector(0.0f, 0.0f, 0.0f);
+	SpringArmComponent->TargetArmLength = 130.0f;
+	SpringArmComponent->SocketOffset = FVector(0.0f, 30.0f, 30.0f);
 
 	SpringArmComponent->bUsePawnControlRotation = true;
 

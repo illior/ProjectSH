@@ -4,22 +4,39 @@
 #include "Animation/WidgetAnimation.h"
 #include "Components/Image.h"
 #include "EnhancedInputSubsystems.h"
-#include "Player/SHCharacter.h"
 #include "UI/SHHUD.h"
 
 void USHInteractWidget::StartShow(bool WithKey)
 {
-	StopAllAnimations();
+	if (IsAnimationPlaying(HideAnim))
+	{
+		float CurrentAnimTime = GetAnimationCurrentTime(HideAnim);
 
+		StopAllAnimations();
+		PlayAnimation(ShowAnim, ShowAnim->GetEndTime() - CurrentAnimTime);
+
+		if (WithKey)
+		{
+			KeyOverlay->SetRenderOpacity(1.0f);
+		}
+		else
+		{
+			KeyOverlay->SetRenderOpacity(0.0f);
+		}
+
+		return;
+	}
+
+	StopAllAnimations();
 	PlayAnimation(ShowAnim);
 
 	if (WithKey)
 	{
-		KeyCodeImage->SetRenderOpacity(1.0f);
+		KeyOverlay->SetRenderOpacity(1.0f);
 	}
 	else
 	{
-		KeyCodeImage->SetRenderOpacity(0.0f);
+		KeyOverlay->SetRenderOpacity(0.0f);
 	}
 }
 
@@ -29,17 +46,18 @@ void USHInteractWidget::StartHide()
 	{
 		float CurrentAnimTime = GetAnimationCurrentTime(ShowAnim);
 
-		StopAllAnimations();
+		StopAnimation(ShowAnim);
 		PlayAnimation(HideAnim, HideAnim->GetEndTime() - CurrentAnimTime);
+
+		return;
 	}
 
-	StopAllAnimations();
 	PlayAnimation(HideAnim);
 }
 
 void USHInteractWidget::StartShowKey()
 {
-	if (IsAnimationPlaying(HideAnim) || IsAnimationPlaying(ShowKeyAnim) || FMath::IsNearlyZero(GetRenderOpacity()))
+	if (IsAnimationPlaying(ShowKeyAnim) || FMath::IsNearlyZero(GetRenderOpacity()))
 	{
 		return;
 	}
@@ -57,7 +75,7 @@ void USHInteractWidget::StartShowKey()
 
 void USHInteractWidget::StartHideKey()
 {
-	if (IsAnimationPlaying(HideAnim) || IsAnimationPlaying(HideKeyAnim) || FMath::IsNearlyZero(GetRenderOpacity()))
+	if (IsAnimationPlaying(HideKeyAnim) || FMath::IsNearlyZero(GetRenderOpacity()))
 	{
 		return;
 	}

@@ -14,7 +14,10 @@ public class ProjectSH : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"SlateCore"
+			"SlateCore",
+			"GameplayAbilities",
+			"GameplayTags",
+			"GameplayTasks"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

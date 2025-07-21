@@ -1,7 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Player/SHPlayerState.h"
+#include "Components/SHAbilitySystemComponent.h"
 #include "SaveSystem/SHSavableComponent.h"
+
+ASHPlayerState::ASHPlayerState()
+{
+	AbilitySystemComponent = CreateDefaultSubobject<USHAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+}
+
+UAbilitySystemComponent* ASHPlayerState::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
 
 FSHPlayerSaveData ASHPlayerState::GetPlayerData()
 {
@@ -91,4 +102,50 @@ void ASHPlayerState::LoadCharacter(FSHPlayerSaveData InSaveData)
 			ISHSavableComponent::Execute_LoadFromSaveData(Component, *ComponentData);
 		}
 	}
+}
+
+void ASHPlayerState::AddAbilitySet(USHAbilitySet* InAbilitySet)
+{
+	if (!IsValid(InAbilitySet) || !IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	if (GrantedAbilitySets.Contains(InAbilitySet))
+	{
+		return;
+	}
+
+	GrantedAbilitySets.Add(InAbilitySet, FSHAbilitySetGrantedHandles());
+	InAbilitySet->GiveToAbilitySystem(AbilitySystemComponent, GrantedAbilitySets.Find(InAbilitySet), this);
+}
+
+void ASHPlayerState::RemoveAbilitySet(USHAbilitySet* InAbilitySet)
+{
+	if (!IsValid(InAbilitySet) || !IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
+	FSHAbilitySetGrantedHandles* Handles = GrantedAbilitySets.Find(InAbilitySet);
+	if (Handles != nullptr)
+	{
+		Handles->TakeFromAbilitySystem(AbilitySystemComponent);
+		GrantedAbilitySets.Remove(InAbilitySet);
+	}
+}
+
+void ASHPlayerState::ClearAllAbilitySets()
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	for (TPair<USHAbilitySet*, FSHAbilitySetGrantedHandles>& Elem : GrantedAbilitySets)
+	{
+		Elem.Value.TakeFromAbilitySystem(AbilitySystemComponent);
+	}
+
+	GrantedAbilitySets.Empty();
 }

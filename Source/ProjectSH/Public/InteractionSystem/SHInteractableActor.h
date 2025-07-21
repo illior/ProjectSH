@@ -9,7 +9,7 @@
 
 class ASHCharacter;
 class UCapsuleComponent;
-class UWidgetComponent;
+class USHInteractWidgetComponent;
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_TwoParams(FSHInteractSignature, ASHInteractableActor, OnInteracted, ASHInteractableActor*, ActivatedActor, ASHCharacter*, ActivatedBy);
 
@@ -28,19 +28,24 @@ public:
 	FSHInteractSignature OnInteracted;
 
 	UCapsuleComponent* GetCollision() const { return CollisionComponent; }
-	UWidgetComponent* GetWidget() const { return WidgetComponent; }
+	USHInteractWidgetComponent* GetWidget() const { return WidgetComponent; }
 
 	virtual FSHActorSaveData GetSaveData_Implementation() override;
 	virtual void LoadFromSaveData_Implementation(FSHActorSaveData InRecord) override;
+
+	virtual FVector GetTargetLocation(AActor* RequestedBy = nullptr) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "ProjectSH|InteractionSystem")
 	virtual void SetIsEnabled(bool InValue);
 	bool GetIsEnabled() const { return bIsEnabled; };
 
-	virtual void StartCanInteract(ASHCharacter* InCharacter, float InDistance);
+	virtual void StartCanInteract(ASHCharacter* InCharacter);
 	virtual void StopCanInteract(ASHCharacter* InCharacter);
 
 	virtual void Interact(ASHCharacter* InCharacter);
+
+	void SetShowWidgetKey(bool InValue);
+	void SetDistanceAlpha(float InValue);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectSH|InteractionSystem")
 	void IsEnabledChanged(bool IsEnabled);
@@ -59,24 +64,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Interact")
 	FVector2D FarWidgetSize = FVector2D(50, 100);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Interact")
+	float CloseInteractAngle = 30.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Interact")
+	float FarInteractAngle = 15.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ProjectSH")
+	float InteractDistance = 150.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ProjectSH")
+	float InteractSearchDistance = 600.0f;
+
 	UPROPERTY(BlueprintReadOnly, Category = "ProjectSH|InteractionSystem")
 	TWeakObjectPtr<ASHCharacter> Character;
 
 	FTimerHandle CooldownTimer;
-	FTimerHandle CheckDistanceTimer;
-	bool bShowKey;
-
-	UFUNCTION()
-	void WidgetAnimFinished();
 
 	virtual void BeginPlay() override;
-
-	void CheckDistance();
-
-	void ShowWidget();
-	void ShowWidgetKey();
-	void HideWidget();
-	void HideWidgetKey();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -86,5 +89,5 @@ private:
 	TObjectPtr<UCapsuleComponent> CollisionComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UWidgetComponent> WidgetComponent;
+	TObjectPtr<USHInteractWidgetComponent> WidgetComponent;
 };

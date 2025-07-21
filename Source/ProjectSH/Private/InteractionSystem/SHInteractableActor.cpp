@@ -3,8 +3,7 @@
 #include "InteractionSystem/SHInteractableActor.h"
 #include "Player/SHCharacter.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/WidgetComponent.h"
-#include "UI/WidgetComponents/SHInteractWidget.h"
+#include "Components/SHInteractWidgetComponent.h"
 
 DEFINE_LOG_CATEGORY(LogInteractableActor);
 
@@ -20,22 +19,13 @@ ASHInteractableActor::ASHInteractableActor()
 	CollisionComponent = CreateDefaultSubobject<UCapsuleComponent>("Collision");
 	CollisionComponent->SetupAttachment(GetRootComponent());
 	CollisionComponent->SetCollisionProfileName(FName(TEXT("OnlyInteract")));
+	CollisionComponent->SetVisibility(false);
 
-	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Widget");
+	CollisionComponent->SetCapsuleHalfHeight(600.0f);
+	CollisionComponent->SetCapsuleRadius(600.0f);
+
+	WidgetComponent = CreateDefaultSubobject<USHInteractWidgetComponent>("Widget");
 	WidgetComponent->SetupAttachment(GetRootComponent());
-	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-
-	WidgetComponent->SetDrawSize(FarWidgetSize);
-	WidgetComponent->SetDrawAtDesiredSize(false);
-	WidgetComponent->SetPivot(FVector2D(0.5f, 1.0f));
-
-	WidgetComponent->SetVisibility(false);
-
-	ConstructorHelpers::FClassFinder<USHInteractWidget> WidgetBPClass(TEXT("/Game/Game/UI/WidgetComponents/WBP_Interact"));
-	if (WidgetBPClass.Class != nullptr)
-	{
-		WidgetComponent->SetWidgetClass(WidgetBPClass.Class);
-	}
 }
 
 FSHActorSaveData ASHInteractableActor::GetSaveData_Implementation()
@@ -77,6 +67,11 @@ void ASHInteractableActor::LoadFromSaveData_Implementation(FSHActorSaveData InRe
 	Serialize(Ar);
 }
 
+FVector ASHInteractableActor::GetTargetLocation(AActor* RequestedBy) const
+{
+	return WidgetComponent->GetComponentLocation();
+}
+
 void ASHInteractableActor::SetIsEnabled(bool InValue)
 {
 	UE_LOG(LogInteractableActor, Display, TEXT("%s: SetIsEnabled %s"), *GetName(), InValue ? TEXT("True") : TEXT("False"));
@@ -92,18 +87,17 @@ void ASHInteractableActor::SetIsEnabled(bool InValue)
 	{
 		CollisionComponent->SetCollisionProfileName(FName(TEXT("NoCollision")));
 
-		HideWidget();
+		WidgetComponent->bShouldShow = false;
+		WidgetComponent->bShouldShowKey = false;
 		Character.Reset();
-
-		GetWorldTimerManager().ClearTimer(CheckDistanceTimer);
 	}
 
 	IsEnabledChanged(bIsEnabled);
 }
 
-void ASHInteractableActor::StartCanInteract(ASHCharacter* InCharacter, float InDistance)
+void ASHInteractableActor::StartCanInteract(ASHCharacter* InCharacter)
 {
-	UE_LOG(LogInteractableActor, Display, TEXT("%s: StartCanInteract"), *GetName());
+	UE_LOG(LogTemp, Display, TEXT("StartCanInteract %s"), *GetName());
 
 	if (InCharacter == nullptr)
 	{
@@ -112,22 +106,17 @@ void ASHInteractableActor::StartCanInteract(ASHCharacter* InCharacter, float InD
 
 	Character = InCharacter;
 
-	bShowKey = InDistance <= InCharacter->GetInteractDistance();
-	ShowWidget();
-
-	FTimerDelegate Delegate;
-	Delegate.BindUObject(this, &ASHInteractableActor::CheckDistance);
-	GetWorldTimerManager().SetTimer(CheckDistanceTimer, Delegate, 0.001f, FTimerManagerTimerParameters{.bLoop = true, .bMaxOncePerFrame = true});
+	WidgetComponent->bShouldShow = true;
 }
 
 void ASHInteractableActor::StopCanInteract(ASHCharacter* InCharacter)
 {
-	UE_LOG(LogInteractableActor, Display, TEXT("%s: StopCanInteract"), *GetName());
+	UE_LOG(LogTemp, Display, TEXT("StopCanInteract %s"), *GetName());
 
-	HideWidget();
+	WidgetComponent->bShouldShow = false;
+	WidgetComponent->bShouldShowKey = false;
+
 	Character.Reset();
-
-	GetWorldTimerManager().ClearTimer(CheckDistanceTimer);
 }
 
 void ASHInteractableActor::Interact(ASHCharacter* InCharacter)
@@ -135,8 +124,7 @@ void ASHInteractableActor::Interact(ASHCharacter* InCharacter)
 	OnInteracted.Broadcast(this, InCharacter);
 
 	bIsEnabled = false;
-	Character.Reset();
-	HideWidget();
+	StopCanInteract(Character.Get());
 
 	if (bIsReusable)
 	{
@@ -147,100 +135,22 @@ void ASHInteractableActor::Interact(ASHCharacter* InCharacter)
 	}
 }
 
-void ASHInteractableActor::WidgetAnimFinished()
+void ASHInteractableActor::SetShowWidgetKey(bool InValue)
 {
-	if (!Character.IsValid())
-	{
-		WidgetComponent->SetVisibility(false);
-	}
+	WidgetComponent->bShouldShowKey = InValue;
+}
+
+void ASHInteractableActor::SetDistanceAlpha(float InValue)
+{
+	WidgetComponent->DistanceAlpha = InValue;
 }
 
 void ASHInteractableActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	USHInteractWidget* InteractWidget = Cast<USHInteractWidget>(WidgetComponent->GetUserWidgetObject());
-	if (InteractWidget != nullptr)
-	{
-		FWidgetAnimationDynamicEvent FinishedDelegate;
-		FinishedDelegate.BindDynamic(this, &ASHInteractableActor::WidgetAnimFinished);
-
-		InteractWidget->BindToAnimationFinished(InteractWidget->GetHideAnim(), FinishedDelegate);
-	}
-
 	if (!bIsEnabled)
 	{
 		SetIsEnabled(false);
-	}
-}
-
-void ASHInteractableActor::CheckDistance()
-{
-	if (Character.IsValid())
-	{
-		float Distance = FVector::Dist(Character->GetCameraLocation(), GetTargetLocation());
-		if (Distance > Character->GetInteractDistance())
-		{
-			if (bShowKey)
-			{
-				HideWidgetKey();
-			}
-		}
-		else
-		{
-			if (!bShowKey)
-			{
-				ShowWidgetKey();
-			}
-		}
-
-		float Alpha = (FMath::Max(Distance, Character->GetInteractDistance()) - Character->GetInteractDistance())
-			/ (Character->GetInteractSearchDistance() - Character->GetInteractDistance());
-
-		WidgetComponent->SetDrawSize(FMath::Lerp(CloseWidgetSize, FarWidgetSize, Alpha));
-	}
-}
-
-void ASHInteractableActor::ShowWidget()
-{
-	WidgetComponent->SetVisibility(true);
-
-	USHInteractWidget* InteractWidget = Cast<USHInteractWidget>(WidgetComponent->GetUserWidgetObject());
-	if (InteractWidget != nullptr)
-	{
-		InteractWidget->StartShow(bShowKey);
-	}
-}
-
-void ASHInteractableActor::ShowWidgetKey()
-{
-	bShowKey = true;
-
-	USHInteractWidget* InteractWidget = Cast<USHInteractWidget>(WidgetComponent->GetUserWidgetObject());
-	if (InteractWidget != nullptr)
-	{
-		InteractWidget->StartShowKey();
-	}
-}
-
-void ASHInteractableActor::HideWidget()
-{
-	bShowKey = false;
-
-	USHInteractWidget* InteractWidget = Cast<USHInteractWidget>(WidgetComponent->GetUserWidgetObject());
-	if (InteractWidget != nullptr)
-	{
-		InteractWidget->StartHide();
-	}
-}
-
-void ASHInteractableActor::HideWidgetKey()
-{
-	bShowKey = false;
-
-	USHInteractWidget* InteractWidget = Cast<USHInteractWidget>(WidgetComponent->GetUserWidgetObject());
-	if (InteractWidget != nullptr)
-	{
-		InteractWidget->StartHideKey();
 	}
 }

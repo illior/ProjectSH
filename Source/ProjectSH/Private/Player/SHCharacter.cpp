@@ -3,11 +3,13 @@
 #include "Player/SHCharacter.h"
 
 #include "Player/SHPlayerController.h"
+#include "Player/SHPlayerState.h"
 #include "UI/SHGameHUD.h"
 #include "UI/Inventory/SHInventoryWidget.h"
 #include "UI/Inventory/Items/SHItemsWidget.h"
 
-#include "InteractionSystem/SHInteractableActor.h"
+#include "Components/SHAbilitySystemComponent.h"
+
 #include "Components/SHInventoryComponent.h"
 #include "Components/SHHealthComponent.h"
 #include "Components/SHCharacterMovementComponent.h"
@@ -53,14 +55,14 @@ ASHCharacter::ASHCharacter(const FObjectInitializer& ObjInit)
 	HealthComponent = CreateDefaultSubobject<USHHealthComponent>(TEXT("CharacterHealth"));
 }
 
-FVector ASHCharacter::GetCameraLocation() const
+UAbilitySystemComponent* ASHCharacter::GetAbilitySystemComponent() const
 {
-	if (CameraComponent != nullptr)
-	{
-		return CameraComponent->GetComponentLocation();
-	}
+	return AbilitySystemComponent;
+}
 
-	return GetActorLocation();
+UCameraComponent* ASHCharacter::GetCameraComponent() const
+{
+	return CameraComponent;
 }
 
 void ASHCharacter::AddSlots(int32 Count)
@@ -121,7 +123,16 @@ void ASHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SearchInteractableActor();
+}
+
+void ASHCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (AbilitySystemComponent == nullptr)
+	{
+		InitAbilitySystemComponet();
+	}
 }
 
 void ASHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -131,11 +142,7 @@ void ASHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASHCharacter::InputLook);
-
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &ASHCharacter::InputStartMove);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASHCharacter::InputMove);
-
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASHCharacter::InputStartInteract);
 	}
 }
 
@@ -155,58 +162,16 @@ void ASHCharacter::BeginPlay()
 	}
 }
 
-void ASHCharacter::SearchInteractableActor()
+void ASHCharacter::InitAbilitySystemComponet()
 {
-	FVector StartPosition = GetCameraLocation();
-	FVector EndPosition = StartPosition + CameraComponent->GetForwardVector() * InteractSearchDistance;
-
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	FHitResult HitResult;
-	GetWorld()->SweepSingleByChannel(
-		HitResult,
-		StartPosition,
-		EndPosition,
-		FQuat::Identity,
-		ECollisionChannel::ECC_GameTraceChannel1,
-		FCollisionShape::MakeSphere(InteractCapsuleRadius),
-		Params
-	);
-
-	if (!HitResult.bBlockingHit)
+	ASHPlayerState* PS = GetPlayerState<ASHPlayerState>();
+	if (!IsValid(PS))
 	{
-		if (InteractActor.IsValid())
-		{
-			InteractActor->StopCanInteract(this);
-			InteractActor.Reset();
-		}
-
 		return;
 	}
 
-	ASHInteractableActor* FindedActor = Cast<ASHInteractableActor>(HitResult.GetActor());
-	if (FindedActor == nullptr || !FindedActor->GetIsEnabled())
-	{
-		if (InteractActor.IsValid())
-		{
-			InteractActor->StopCanInteract(this);
-			InteractActor.Reset();
-		}
-
-		return;
-	}
-
-	if (FindedActor != InteractActor.Get())
-	{
-		if (InteractActor.IsValid())
-		{
-			InteractActor->StopCanInteract(this);
-		}
-
-		InteractActor = FindedActor;
-		InteractActor->StartCanInteract(this, FVector::Dist(StartPosition, InteractActor->GetTargetLocation()));
-	}
+	AbilitySystemComponent = CastChecked<USHAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 }
 
 void ASHCharacter::InputLook(const FInputActionInstance& Value)
@@ -220,11 +185,6 @@ void ASHCharacter::InputLook(const FInputActionInstance& Value)
 
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
-}
-
-void ASHCharacter::InputStartMove(const FInputActionInstance& Value)
-{
-
 }
 
 void ASHCharacter::InputMove(const FInputActionInstance& Value)
@@ -242,19 +202,4 @@ void ASHCharacter::InputMove(const FInputActionInstance& Value)
 
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
-}
-
-void ASHCharacter::InputStartInteract(const FInputActionInstance& Value)
-{
-	if (!InteractActor.IsValid())
-	{
-		return;
-	}
-
-	float Distance = FVector::Dist(InteractActor->GetTargetLocation(), GetCameraLocation());
-	if (Distance <= InteractDistance)
-	{
-		InteractActor->Interact(this);
-		InteractActor.Reset();
-	}
 }

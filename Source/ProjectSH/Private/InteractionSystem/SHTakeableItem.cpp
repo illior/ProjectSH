@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InteractionSystem/SHTakeableItem.h"
+#include "Components/SHInteractWidgetComponent.h"
 #include "Player/SHCharacter.h"
 #include "Components/StaticMeshComponent.h"
 #include "InventorySystem/SHItemData.h"
@@ -45,7 +46,7 @@ void ASHTakeableItem::Interact(ASHCharacter* InCharacter)
 	OnInteracted.Broadcast(this, InCharacter);
 
 	bIsEnabled = false;
-	HideWidget();
+	GetWidget()->bShouldShow = false;
 
 	InCharacter->AddItem(ItemData);
 

@@ -40,6 +40,9 @@ protected:
 	TObjectPtr<UWidgetAnimation> HideKeyAnim;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSh")
+	TObjectPtr<UWidget> KeyOverlay;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSh")
 	TObjectPtr<UImage> KeyCodeImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH", meta = (GetOptions = "EnhancedInput.PlayerMappableKeySettings.GetKnownMappingNames"))

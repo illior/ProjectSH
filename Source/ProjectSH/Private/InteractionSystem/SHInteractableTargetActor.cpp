@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InteractionSystem/SHInteractableTargetActor.h"
+#include "Components/SHInteractWidgetComponent.h"
 #include "UI/SHGameHUD.h"
 #include "UI/Inventory/SHInventoryWidget.h"
 #include "UI/Inventory/Items/SHItemsWidget.h"
@@ -72,7 +73,8 @@ void ASHInteractableTargetActor::ResumeGame()
 	}
 
 	PlayerController->ResumeGame();
-	Character.Reset();
+
+	StopCanInteract(Character.Get());
 
 	FTimerDelegate Delegate;
 	Delegate.BindUFunction(this, "SetIsEnabled", true);
@@ -152,10 +154,9 @@ void ASHInteractableTargetActor::SetIsEnabled(bool InValue)
 	{
 		GetCollision()->SetCollisionProfileName(FName(TEXT("NoCollision")));
 
-		GetWidget()->SetVisibility(false);
+		GetWidget()->bShouldShow = false;
+		GetWidget()->bShouldShowKey = false;
 		Character.Reset();
-
-		GetWorldTimerManager().ClearTimer(CheckDistanceTimer);
 	}
 
 	IsEnabledChanged(bIsEnabled);
@@ -169,7 +170,7 @@ void ASHInteractableTargetActor::Interact(ASHCharacter* InCharacter)
 	}
 
 	bIsEnabled = false;
-	HideWidget();
+	GetWidget()->bShouldShow = false;
 
 	ASHPlayerController* PlayerController = Cast<ASHPlayerController>(InCharacter->GetController());
 	if (PlayerController == nullptr)

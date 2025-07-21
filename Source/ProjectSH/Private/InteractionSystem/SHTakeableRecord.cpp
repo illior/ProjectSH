@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InteractionSystem/SHTakeableRecord.h"
+#include "Components/SHInteractWidgetComponent.h"
 #include "Player/SHCharacter.h"
 
 ASHTakeableRecord::ASHTakeableRecord()
@@ -17,7 +18,7 @@ void ASHTakeableRecord::Interact(ASHCharacter* InCharacter)
 	OnInteracted.Broadcast(this, InCharacter);
 
 	bIsEnabled = false;
-	HideWidget();
+	GetWidget()->bShouldShow = false;
 
 	FSHRecord* Record = RecordRow.GetRow<FSHRecord>("");
 

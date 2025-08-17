@@ -15,8 +15,11 @@ class PROJECTSH_API USHInteractWidgetComponent : public UWidgetComponent
 public:
 	USHInteractWidgetComponent();
 
+	UPROPERTY(BlueprintReadWrite, Category = "ProjectSH")
 	bool bShouldShow = false;
+	UPROPERTY(BlueprintReadWrite, Category = "ProjectSH")
 	bool bShouldShowKey = false;
+	UPROPERTY(BlueprintReadWrite, Category = "ProjectSH")
 	float DistanceAlpha = 0.0f;
 
 	virtual void BeginPlay() override;

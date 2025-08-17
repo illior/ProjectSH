@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "SHBaseItem.generated.h"
 
+class ASHInteractItem;
+
 UCLASS(BlueprintType)
 class PROJECTSH_API USHBaseItem : public UDataAsset
 {
@@ -19,6 +21,7 @@ public:
 	int32 GetMaxStackAmount() const { return MaxStackAmount; }
 	int32 GetSize() const { return Size; }
 	UTexture2D* GetIcon() const { return Icon; }
+	TSoftClassPtr<ASHInteractItem> GetInteractItemClass() const { return InteractItemClass; }
 
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	virtual FString ToString() const;
@@ -41,6 +44,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item")
 	TObjectPtr<UTexture2D> Icon = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Base Item")
+	TSoftClassPtr<ASHInteractItem> InteractItemClass;
 
 public:
 #if WITH_EDITOR

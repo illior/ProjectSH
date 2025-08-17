@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/NoExportTypes.h"
 #include "SHItemData.generated.h"
 
@@ -19,6 +20,9 @@ class PROJECTSH_API USHItemData : public UObject
 
 
 public:
+	UPROPERTY(BlueprintReadWrite, SaveGame, Category = "InventorySystem")
+	FGameplayTagContainer ItemTags;
+
 	FSHOnItemPositionChangedSignature OnPositionChanged;
 	FSHOnItemCountChangedSignature OnCountChanged;
 	FSHOnItemDroppedSignature OnDropped;
@@ -41,6 +45,8 @@ public:
 	int32 GetItemSize() const;
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	UTexture2D* GetItemIcon() const;
+	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
+	TSoftClassPtr<ASHInteractItem> GetInteractItemClass() const;
 
 	UFUNCTION(BlueprintCallable, Category = "InventorySystem")
 	virtual FString ToString() const;

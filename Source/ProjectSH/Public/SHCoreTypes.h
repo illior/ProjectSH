@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "SHCoreTypes.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FSHOnCancelInspectItemSignature);
+
 class USHBaseItem;
 
 UENUM(BlueprintType)

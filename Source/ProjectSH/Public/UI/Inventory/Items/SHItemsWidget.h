@@ -12,6 +12,7 @@ class USHSlotsContainerWidget;
 class USHItemsContainerWidget;
 class USHItemsCursorWidget;
 class USHItemDropDownMenuWidget;
+class USHInspectItemWidget;
 class USHItemData;
 
 UCLASS()
@@ -29,7 +30,9 @@ public:
 	virtual void Apply() override;
 	virtual void Cancel() override;
 
+	virtual void Move(FVector2D Value, float ElapsedTime) override;
 	virtual void MoveWithFrequency(FVector2D Value) override;
+	virtual void AdditiveMove(FVector2D Value, float ElapsedTime);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
@@ -43,6 +46,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<USHItemDropDownMenuWidget> DropDownMenu;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
+	TObjectPtr<USHInspectItemWidget> ItemInspection;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "ProjectSH")
 	TObjectPtr<UTextBlock> ItemName;
@@ -89,6 +95,8 @@ protected:
 	void DropItem();
 
 	void TryCloseAddSlots();
+
+	void StopInspectItem();
 
 	void InventoryInitialized();
 	void ItemCreated(USHItemData* InItemData);

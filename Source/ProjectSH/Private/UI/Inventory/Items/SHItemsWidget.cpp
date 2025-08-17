@@ -9,6 +9,7 @@
 #include "UI/Inventory/Items/SHItemsContainerWidget.h"
 #include "UI/Inventory/Items/SHItemsCursorWidget.h"
 #include "UI/Inventory/Items/SHItemDropDownMenuWidget.h"
+#include "UI/Inventory/Items/SHInspectItemWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/PanelWidget.h"
@@ -84,6 +85,7 @@ void USHItemsWidget::Apply()
 		StopMovingItem();
 		break;
 	case ESHItemInventoryState::InspectItem:
+		ItemInspection->InputApply();
 		break;
 	case ESHItemInventoryState::BindWeapon:
 		break;
@@ -112,11 +114,20 @@ void USHItemsWidget::Cancel()
 		CancelMovingItem();
 		break;
 	case ESHItemInventoryState::InspectItem:
+		ItemInspection->InputCancel();
 		break;
 	case ESHItemInventoryState::BindWeapon:
 		break;
 	default:
 		break;
+	}
+}
+
+void USHItemsWidget::Move(FVector2D Value, float ElapsedTime)
+{
+	if (CurrentState == ESHItemInventoryState::InspectItem)
+	{
+		ItemInspection->InputMove(Value, ElapsedTime);
 	}
 }
 
@@ -147,9 +158,27 @@ void USHItemsWidget::MoveWithFrequency(FVector2D Value)
 	}
 }
 
+void USHItemsWidget::AdditiveMove(FVector2D Value, float ElapsedTime)
+{
+	if (CurrentState == ESHItemInventoryState::InspectItem)
+	{
+		ItemInspection->InputAdditiveMove(Value, ElapsedTime);
+	}
+}
+
 void USHItemsWidget::InspectItem()
 {
-	UE_LOG(LogTemp, Display, TEXT("InspectItem"));
+	USHItemData* ItemData = ItemsContainer->GetItemDataByPosition(ItemsCursor->GetPosition());
+	if (!IsValid(ItemData))
+	{
+		return;
+	}
+
+	CloseDropDownMenu();
+
+	CurrentState = ESHItemInventoryState::InspectItem;
+	bConsumeAdditiveMove = true;
+	ItemInspection->StartInspect(ItemData);
 }
 
 void USHItemsWidget::EquipItem()
@@ -303,6 +332,20 @@ void USHItemsWidget::TryCloseAddSlots()
 	}
 }
 
+void USHItemsWidget::StopInspectItem()
+{
+	CurrentState = ESHItemInventoryState::Select;
+	bConsumeAdditiveMove = false;
+
+	USHInventoryWidget* InventoryWidget = Cast<USHInventoryWidget>(GetOuter());
+	if (IsValid(InventoryWidget))
+	{
+		InventoryWidget->SetCancelDescription(CloseDescription);
+
+		InventoryWidget->SetMoveDescription(MoveDescription);
+	}
+}
+
 void USHItemsWidget::InventoryInitialized()
 {
 	SlotsContainer->CreateSlots();
@@ -376,9 +419,12 @@ void USHItemsWidget::NativeOnInitialized()
 	check(ItemsContainer);
 	check(ItemsCursor);
 	check(DropDownMenu);
+	check(ItemInspection);
 	check(ItemName);
 	check(ItemDescription);
 	
+	ItemInspection->OnCancelInspectItem.AddUObject(this, &USHItemsWidget::StopInspectItem);
+
 	USHInventoryComponent* CharacterInventory = GetCharacterInventory();
 	if (CharacterInventory == nullptr)
 	{

@@ -64,6 +64,16 @@ UTexture2D* USHItemData::GetItemIcon() const
 	return nullptr;
 }
 
+TSoftClassPtr<ASHInteractItem> USHItemData::GetInteractItemClass() const
+{
+	if (Item != nullptr)
+	{
+		return Item->GetInteractItemClass();
+	}
+
+	return nullptr;
+}
+
 FString USHItemData::ToString() const
 {
 	if (Item == nullptr)

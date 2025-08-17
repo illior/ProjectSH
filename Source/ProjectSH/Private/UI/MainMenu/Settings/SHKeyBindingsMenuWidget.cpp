@@ -286,8 +286,8 @@ void USHKeyBindingsMenuWidget::StartListenKey()
 			BindButton->SetKeyState(BindButton->ActiveSlot, ESHKeyButtonState::Active);
 		}
 	}
-	FLatentActionInfo ActionInfo;
 
+	FLatentActionInfo ActionInfo;
 	ActionInfo.UUID = 2001;
 	ActionInfo.Linkage = 0;
 	ActionInfo.CallbackTarget = this;

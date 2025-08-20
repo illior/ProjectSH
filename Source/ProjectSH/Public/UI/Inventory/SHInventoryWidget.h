@@ -27,6 +27,8 @@ public:
 	USHItemsWidget* GetItemsWidget() const;
 	USHRecordsWidget* GetRecordsWidget() const;
 
+	void SetTitleVisibility(ESlateVisibility InVisibility);
+
 	void OpenMap();
 	void OpenItems();
 	void OpenRecords();

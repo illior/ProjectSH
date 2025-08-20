@@ -9,7 +9,7 @@ DEFINE_LOG_CATEGORY(LogInteractableActor);
 
 ASHInteractableActor::ASHInteractableActor()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bIsEnabled = true;
 

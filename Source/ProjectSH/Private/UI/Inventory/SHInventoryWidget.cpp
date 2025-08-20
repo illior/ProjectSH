@@ -91,6 +91,11 @@ USHRecordsWidget* USHInventoryWidget::GetRecordsWidget() const
 	return nullptr;
 }
 
+void USHInventoryWidget::SetTitleVisibility(ESlateVisibility InVisibility)
+{
+	Titles->SetVisibility(InVisibility);
+}
+
 void USHInventoryWidget::OpenMap()
 {
 	USHMapWidget* MapWidget = GetMapWidget();

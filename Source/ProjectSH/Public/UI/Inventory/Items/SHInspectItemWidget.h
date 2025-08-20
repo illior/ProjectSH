@@ -19,7 +19,6 @@ class PROJECTSH_API USHInspectItemWidget : public UUserWidget
 public:
 	FSHOnCancelInspectItemSignature OnCancelInspectItem;
 
-	UFUNCTION(BlueprintCallable)
 	FVector2D WorldToScreenPosition(const FVector& WorldLocation);
 
 	void StartInspect(USHItemData* InItemData);

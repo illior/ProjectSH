@@ -174,6 +174,19 @@ void USHItemsWidget::InspectItem()
 		return;
 	}
 
+	SlotsContainer->SetVisibility(ESlateVisibility::Hidden);
+	ItemsContainer->SetVisibility(ESlateVisibility::Hidden);
+	ItemsCursor->SetVisibility(ESlateVisibility::Hidden);
+	ItemName->GetParent()->SetVisibility(ESlateVisibility::Hidden);
+	if (OpenState == ESHInventoryOpenState::Default)
+	{
+		USHInventoryWidget* InventoryWidget = Cast<USHInventoryWidget>(GetOuter());
+		if (IsValid(InventoryWidget))
+		{
+			InventoryWidget->SetTitleVisibility(ESlateVisibility::Hidden);
+		}
+	}
+
 	CloseDropDownMenu();
 
 	CurrentState = ESHItemInventoryState::InspectItem;
@@ -193,8 +206,6 @@ void USHItemsWidget::FastAccessItem()
 
 void USHItemsWidget::CombineItem()
 {
-	UE_LOG(LogTemp, Display, TEXT("CombineItem"));
-
 	CloseDropDownMenu();
 
 	MovingItem = TWeakObjectPtr<USHItemData>(ItemsContainer->GetItemDataByPosition(ItemsCursor->GetPosition()));
@@ -300,16 +311,12 @@ void USHItemsWidget::UseItem()
 			}
 		}
 
-		return;
+		CloseDropDownMenu();
 	}
-
-	UE_LOG(LogTemp, Display, TEXT("UseItem"));
 }
 
 void USHItemsWidget::DropItem()
 {
-	UE_LOG(LogTemp, Display, TEXT("DropItem"));
-
 	CloseDropDownMenu();
 
 	USHItemData* ItemData = ItemsContainer->GetItemDataByPosition(ItemsCursor->GetPosition());
@@ -334,6 +341,19 @@ void USHItemsWidget::TryCloseAddSlots()
 
 void USHItemsWidget::StopInspectItem()
 {
+	SlotsContainer->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	ItemsContainer->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	ItemsCursor->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	ItemName->GetParent()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	if (OpenState == ESHInventoryOpenState::Default)
+	{
+		USHInventoryWidget* InventoryWidget = Cast<USHInventoryWidget>(GetOuter());
+		if (IsValid(InventoryWidget))
+		{
+			InventoryWidget->SetTitleVisibility(ESlateVisibility::SelfHitTestInvisible);
+		}
+	}
+
 	CurrentState = ESHItemInventoryState::Select;
 	bConsumeAdditiveMove = false;
 

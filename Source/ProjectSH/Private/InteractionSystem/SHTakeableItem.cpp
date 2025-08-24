@@ -46,7 +46,7 @@ void ASHTakeableItem::Interact(ASHCharacter* InCharacter)
 	OnInteracted.Broadcast(this, InCharacter);
 
 	bIsEnabled = false;
-	GetWidget()->bShouldShow = false;
+	GetWidgetComponent()->bShouldShow = false;
 
 	InCharacter->AddItem(ItemData);
 
@@ -65,7 +65,6 @@ void ASHTakeableItem::PauseStateChanged(bool bIsPaused)
 		return;
 	}
 
-	Character.Reset();
 	ASHGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASHGameModeBase>();
 	if (GameMode != nullptr)
 	{

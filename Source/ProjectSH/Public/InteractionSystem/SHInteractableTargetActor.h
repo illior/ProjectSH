@@ -23,7 +23,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "ProjectSH|InteractionSystem")
 	FSHCompleteSignature OnComplete;
 
-	UCameraComponent* GetCamera() const { return CameraComponent; }
+	UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 
 	virtual void Apply();
 	virtual void Cancel();
@@ -53,6 +53,9 @@ public:
 	virtual void SetIsEnabled(bool InValue) override;
 	virtual void Interact(ASHCharacter* InCharacter) override;
 protected:
+	UPROPERTY(BlueprintReadOnly, Category = "ProjectSH|InteractionSystem")
+	TWeakObjectPtr<ASHCharacter> Character;
+
 	UFUNCTION(BlueprintCallable, Category = "ProjectSH|InteractionSystem")
 	USHInventoryWidget* GetInventoryWidget() const;
 

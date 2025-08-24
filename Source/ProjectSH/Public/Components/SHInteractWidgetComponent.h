@@ -28,9 +28,9 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Interact")
-	FVector2D CloseWidgetSize = FVector2D(100, 200);
+	FVector2D CloseWidgetSize = FVector2D(60, 120);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Interact")
-	FVector2D FarWidgetSize = FVector2D(50, 100);
+	FVector2D FarWidgetSize = FVector2D(30, 60);
 
 	bool bShow = false;
 	bool bShowKey = false;

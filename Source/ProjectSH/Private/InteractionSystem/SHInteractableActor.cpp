@@ -89,34 +89,20 @@ void ASHInteractableActor::SetIsEnabled(bool InValue)
 
 		WidgetComponent->bShouldShow = false;
 		WidgetComponent->bShouldShowKey = false;
-		Character.Reset();
 	}
 
 	IsEnabledChanged(bIsEnabled);
 }
 
-void ASHInteractableActor::StartCanInteract(ASHCharacter* InCharacter)
+void ASHInteractableActor::StartCanInteract()
 {
-	UE_LOG(LogTemp, Display, TEXT("StartCanInteract %s"), *GetName());
-
-	if (InCharacter == nullptr)
-	{
-		return;
-	}
-
-	Character = InCharacter;
-
 	WidgetComponent->bShouldShow = true;
 }
 
-void ASHInteractableActor::StopCanInteract(ASHCharacter* InCharacter)
+void ASHInteractableActor::StopCanInteract()
 {
-	UE_LOG(LogTemp, Display, TEXT("StopCanInteract %s"), *GetName());
-
 	WidgetComponent->bShouldShow = false;
 	WidgetComponent->bShouldShowKey = false;
-
-	Character.Reset();
 }
 
 void ASHInteractableActor::Interact(ASHCharacter* InCharacter)
@@ -124,7 +110,7 @@ void ASHInteractableActor::Interact(ASHCharacter* InCharacter)
 	OnInteracted.Broadcast(this, InCharacter);
 
 	bIsEnabled = false;
-	StopCanInteract(Character.Get());
+	StopCanInteract();
 
 	if (bIsReusable)
 	{

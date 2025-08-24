@@ -27,8 +27,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "ProjectSH|InteractionSystem")
 	FSHInteractSignature OnInteracted;
 
-	UCapsuleComponent* GetCollision() const { return CollisionComponent; }
-	USHInteractWidgetComponent* GetWidget() const { return WidgetComponent; }
+	UCapsuleComponent* GetCollisionComponent() const { return CollisionComponent; }
+	USHInteractWidgetComponent* GetWidgetComponent() const { return WidgetComponent; }
 
 	virtual FSHActorSaveData GetSaveData_Implementation() override;
 	virtual void LoadFromSaveData_Implementation(FSHActorSaveData InRecord) override;
@@ -39,17 +39,16 @@ public:
 	virtual void SetIsEnabled(bool InValue);
 	bool GetIsEnabled() const { return bIsEnabled; };
 
-	virtual void StartCanInteract(ASHCharacter* InCharacter);
-	virtual void StopCanInteract(ASHCharacter* InCharacter);
+	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectSH|InteractionSystem")
+	void IsEnabledChanged(bool IsEnabled);
+
+	virtual void StartCanInteract();
+	virtual void StopCanInteract();
 
 	virtual void Interact(ASHCharacter* InCharacter);
 
 	void SetShowWidgetKey(bool InValue);
 	void SetDistanceAlpha(float InValue);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "ProjectSH|InteractionSystem")
-	void IsEnabledChanged(bool IsEnabled);
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Category = "ProjectSH: Interact")
 	bool bIsEnabled;
@@ -58,6 +57,8 @@ protected:
 	bool bIsReusable = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Interact", meta = (EditCondition = "bIsReusable"))
 	float CooldownTime = 3.0f;
+
+	FTimerHandle CooldownTimer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectSH: Interact")
 	FVector2D CloseWidgetSize = FVector2D(100, 200);
@@ -73,11 +74,6 @@ protected:
 	float InteractDistance = 150.0f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ProjectSH")
 	float InteractSearchDistance = 600.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "ProjectSH|InteractionSystem")
-	TWeakObjectPtr<ASHCharacter> Character;
-
-	FTimerHandle CooldownTimer;
 
 	virtual void BeginPlay() override;
 

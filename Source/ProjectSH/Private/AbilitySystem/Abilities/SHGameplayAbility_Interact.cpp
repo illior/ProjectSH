@@ -71,7 +71,7 @@ void USHGameplayAbility_Interact::OnRemoveAbility(const FGameplayAbilityActorInf
 	{
 		if (IsValid(PrevInteractData.InteractActor))
 		{
-			PrevInteractData.InteractActor->StopCanInteract(GetSHCharacterFromActorInfo());
+			PrevInteractData.InteractActor->StopCanInteract();
 		}
 	}
 
@@ -122,7 +122,7 @@ void USHGameplayAbility_Interact::SearchInteractionObjects()
 			continue;
 		}
 
-		float DistanceSqr = FVector::DistSquared(Character->GetActorLocation(), InteractableActor->GetActorLocation());
+		float DistanceSqr = FVector::DistSquared(Character->GetActorLocation(), InteractableActor->GetTargetLocation());
 		if (DistanceSqr > InteractSearchDistanceSqr)
 		{
 			continue;
@@ -204,7 +204,7 @@ void USHGameplayAbility_Interact::HandleSmallArrayCase(const TArray<FSHInteractD
 	{
 		if (IsValid(PrevInteractData.InteractActor) && !NewSet.Contains(PrevInteractData))
 		{
-			PrevInteractData.InteractActor->StopCanInteract(GetSHCharacterFromActorInfo());
+			PrevInteractData.InteractActor->StopCanInteract();
 		}
 	}
 
@@ -212,7 +212,7 @@ void USHGameplayAbility_Interact::HandleSmallArrayCase(const TArray<FSHInteractD
 	{
 		if (IsValid(NewInteractData.InteractActor) && !PreviousClosestActors.Contains(NewInteractData))
 		{
-			NewInteractData.InteractActor->StartCanInteract(GetSHCharacterFromActorInfo());
+			NewInteractData.InteractActor->StartCanInteract();
 		}
 	}
 
@@ -250,7 +250,7 @@ void USHGameplayAbility_Interact::UpdateWidgets(const TArray<FSHInteractData>& I
 	{
 		if (IsValid(PrevInteractData.InteractActor) && !NewSet.Contains(PrevInteractData))
 		{
-			PrevInteractData.InteractActor->StopCanInteract(GetSHCharacterFromActorInfo());
+			PrevInteractData.InteractActor->StopCanInteract();
 		}
 	}
 
@@ -258,7 +258,7 @@ void USHGameplayAbility_Interact::UpdateWidgets(const TArray<FSHInteractData>& I
 	{
 		if (IsValid(NewInteractData.InteractActor) && !PrevSet.Contains(NewInteractData))
 		{
-			NewInteractData.InteractActor->StartCanInteract(GetSHCharacterFromActorInfo());
+			NewInteractData.InteractActor->StartCanInteract();
 		}
 	}
 

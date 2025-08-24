@@ -18,7 +18,7 @@ void ASHTakeableRecord::Interact(ASHCharacter* InCharacter)
 	OnInteracted.Broadcast(this, InCharacter);
 
 	bIsEnabled = false;
-	GetWidget()->bShouldShow = false;
+	GetWidgetComponent()->bShouldShow = false;
 
 	FSHRecord* Record = RecordRow.GetRow<FSHRecord>("");
 

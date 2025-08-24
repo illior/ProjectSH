@@ -67,19 +67,16 @@ void ASHInteractableTargetActor::ResumeGame()
 	}
 
 	ASHPlayerController* PlayerController = Cast<ASHPlayerController>(Character->GetController());
-	if (PlayerController == nullptr)
+	if (IsValid(PlayerController))
 	{
-		return;
+		PlayerController->ResumeGame();
 	}
-
-	PlayerController->ResumeGame();
-
-	StopCanInteract(Character.Get());
 
 	FTimerDelegate Delegate;
 	Delegate.BindUFunction(this, "SetIsEnabled", true);
-
 	GetWorldTimerManager().SetTimer(CooldownTimer, Delegate, CooldownTime, false);
+
+	StopCanInteract();
 }
 
 void ASHInteractableTargetActor::Complete()
@@ -90,50 +87,38 @@ void ASHInteractableTargetActor::Complete()
 	}
 
 	ASHPlayerController* PlayerController = Cast<ASHPlayerController>(Character->GetController());
-	if (PlayerController == nullptr)
+	if (IsValid(PlayerController))
 	{
-		return;
+		PlayerController->ResumeGame();
 	}
 
-	PlayerController->ResumeGame();
 	OnComplete.Broadcast(this, Character.Get());
-
 	SetIsEnabled(false);
-
-	UE_LOG(LogTemp, Warning, TEXT("Complete"));
 }
 
 void ASHInteractableTargetActor::ShowItems_Implementation()
 {
-	if (!Character.IsValid())
+	if (Character.IsValid())
 	{
-		return;
+		USHInventoryWidget* InventoryWidget = GetInventoryWidget();
+		if (IsValid(InventoryWidget))
+		{
+			InventoryWidget->ShowItems();
+		}
 	}
-
-	USHInventoryWidget* InventoryWidget = GetInventoryWidget();
-	if (!IsValid(InventoryWidget))
-	{
-		return;
-	}
-
-	InventoryWidget->ShowItems();
 }
 
 void ASHInteractableTargetActor::HideItems_Implementation()
 {
-	if (!Character.IsValid())
+	if (Character.IsValid())
 	{
-		return;
+		USHInventoryWidget* InventoryWidget = GetInventoryWidget();
+		if (IsValid(InventoryWidget))
+		{
+			InventoryWidget->HideItems();
+			SetDescription();
+		}
 	}
-
-	USHInventoryWidget* InventoryWidget = GetInventoryWidget();
-	if (!IsValid(InventoryWidget))
-	{
-		return;
-	}
-
-	InventoryWidget->HideItems();
-	SetDescription();
 }
 
 void ASHInteractableTargetActor::SetDescription_Implementation()
@@ -146,16 +131,16 @@ void ASHInteractableTargetActor::SetIsEnabled(bool InValue)
 	bIsEnabled = InValue;
 	if (bIsEnabled)
 	{
-		GetCollision()->SetCollisionProfileName(FName(TEXT("OnlyInteract")));
+		GetCollisionComponent()->SetCollisionProfileName(FName(TEXT("OnlyInteract")));
 
 		GetWorldTimerManager().ClearTimer(CooldownTimer);
 	}
 	else
 	{
-		GetCollision()->SetCollisionProfileName(FName(TEXT("NoCollision")));
+		GetCollisionComponent()->SetCollisionProfileName(FName(TEXT("NoCollision")));
 
-		GetWidget()->bShouldShow = false;
-		GetWidget()->bShouldShowKey = false;
+		GetWidgetComponent()->bShouldShow = false;
+		GetWidgetComponent()->bShouldShowKey = false;
 		Character.Reset();
 	}
 
@@ -170,46 +155,40 @@ void ASHInteractableTargetActor::Interact(ASHCharacter* InCharacter)
 	}
 
 	bIsEnabled = false;
-	GetWidget()->bShouldShow = false;
+	GetWidgetComponent()->bShouldShow = false;
 
 	ASHPlayerController* PlayerController = Cast<ASHPlayerController>(InCharacter->GetController());
-	if (PlayerController == nullptr)
+	if (IsValid(PlayerController))
 	{
-		return;
+		FViewTargetTransitionParams TransitionParams;
+		TransitionParams.BlendTime = 0;
+		TransitionParams.BlendExp = 0.0f;
+		TransitionParams.BlendFunction = EViewTargetBlendFunction::VTBlend_PreBlended;
+		TransitionParams.bLockOutgoing = true;
+
+		PlayerController->SetViewTarget(this, TransitionParams);
 	}
 
-	FViewTargetTransitionParams TransitionParams;
-	TransitionParams.BlendTime = 0;
-	TransitionParams.BlendExp = 0.0f;
-	TransitionParams.BlendFunction = EViewTargetBlendFunction::VTBlend_PreBlended;
-	TransitionParams.bLockOutgoing = true;
-
-	PlayerController->SetViewTarget(this, TransitionParams);
-
+	Character = InCharacter;
 	OnInteracted.Broadcast(this, InCharacter);
 }
 
 USHInventoryWidget* ASHInteractableTargetActor::GetInventoryWidget() const
 {
-	if (!Character.IsValid())
+	if (Character.IsValid())
 	{
-		return nullptr;
+		ASHPlayerController* PlayerController = Character->GetController<ASHPlayerController>();
+		if (IsValid(PlayerController))
+		{
+			ASHGameHUD* HUD = PlayerController->GetHUD<ASHGameHUD>();
+			if (IsValid(HUD))
+			{
+				return HUD->GetInventoryWidget();
+			}
+		}
 	}
 
-	ASHPlayerController* PlayerController = Character->GetController<ASHPlayerController>();
-	if (PlayerController == nullptr)
-	{
-		return nullptr;
-	}
-
-	ASHGameHUD* HUD = PlayerController->GetHUD<ASHGameHUD>();
-	if (HUD == nullptr)
-	{
-		return nullptr;
-	}
-
-
-	return HUD->GetInventoryWidget();
+	return nullptr;
 }
 
 void ASHInteractableTargetActor::SetItemIsGarbage(USHItemData* InItemData) const
